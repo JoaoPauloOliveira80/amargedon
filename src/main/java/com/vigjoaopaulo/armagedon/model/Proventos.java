@@ -1,12 +1,12 @@
 package com.vigjoaopaulo.armagedon.model;
 
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
@@ -14,41 +14,48 @@ public class Proventos {
 	
 	
     @Id 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;    
+    private int id;     
     @Column(name = "dt_recebimeto")
-    private Date dt_recebimeto;
+    private java.sql.Date dt_recebimeto;
     private String ativo;
     private Double valorDep;
-    private Date data;
     
     public Proventos() {
 		// TODO Auto-generated constructor stub
 	}
 
-    public Proventos(Long id, Date dt_recebimeto, String ativo, Double valorDep) {
+    public Proventos(int id, Date dt_recebimeto, String ativo, Double valorDep) {
         this.id = id;
         this.dt_recebimeto = dt_recebimeto;
         this.ativo = ativo;
         this.valorDep = valorDep;
-        this.data = new Date(Calendar.getInstance().getTime().getTime()); // Adiciona a data atual
     }
 
-    public Long getId() { 
+    public int getId() { 
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
     public Date getDt_recebimeto() {
         return dt_recebimeto;
     }
+    
+    
+    public void setDt_recebimeto(String dataStr) {
+        try {
+            SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy"); // ajuste o formato de acordo com seus dados
+            java.util.Date data = formato.parse(dataStr);
+            java.sql.Date dataSql = new java.sql.Date(data.getTime());
 
-    public void setDt_recebimeto(Date dt_recebimeto) {
-        this.dt_recebimeto = dt_recebimeto;
+            this.dt_recebimeto = dataSql; // chama o método original setDt_recebimeto()
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
+
 
     public String getAtivo() {
         return ativo;
@@ -68,32 +75,12 @@ public class Proventos {
     
     
 
-	public Date getData() {
-		return data;
-	}
-
-	public void setData(Date data) {
-		this.data = data;
-	}
-	
-	public void saveData() {
-        this.data = new Date(Calendar.getInstance().getTime().getTime()); 
-    }
-
 	@Override
 	public String toString() {
 		return " Codigo deposito = " + id + "\n Data pagamento = " + dt_recebimeto + "\n Ativo=" + ativo + "\n ValorDep="
 				+ valorDep;
 	}
 	
-	
-	public void salvarBanco() {
-		
-		
-		
-		
-		
-	}
-    
+
     
 }
