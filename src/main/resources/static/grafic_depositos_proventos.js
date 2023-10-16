@@ -20,7 +20,59 @@ var meuGrafico = new Chart(ctx, {
     }
 });*/
 
-fetch('/depositos')
+/*
+fetch('/proventos').then(response => response.json())
+.then(proventosData => {
+    let data = [...proventosData];
+
+    let proventosPorMes = data.reduce((acc, provento) => {
+        let mes = provento.dt_recebimeto.slice(0, 7);
+        if (!acc[mes]) {
+            acc[mes] = 0;
+        }
+        acc[mes] += provento.valorDep;
+        return acc;
+    }, {});
+
+    let labels = Object.keys(proventosPorMes);
+    let valores = Object.values(proventosPorMes);
+
+    let proventos = labels.map((label, i) => ({mes: label, valor: valores[i]}));
+
+    proventos.sort((a, b) => a.mes.localeCompare(b.mes));
+
+    labels = proventos.map(provento => provento.mes);
+    valores = proventos.map(provento => provento.valor);
+
+    let ctx = document.getElementById('meuGrafico').getContext('2d');
+    let chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Proventos',
+                data: valores,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+});
+*/
+
+
+
+/*fetch('/depositos')
     .then(response => response.json())
     .then(data => {
         // Agrupa os depósitos por mês e soma os valores
@@ -69,65 +121,110 @@ fetch('/depositos')
                 }
             }
         });
-    });
+    });*/
 
-/*
+Promise.all([
+    fetch('/depositos').then(response => response.json()),
+    fetch('/proventos').then(response => response.json())
+]).then(([depositosData, proventosData]) => {
+    let dataDep = [...depositosData];
+    let dataProv = [...proventosData];
 
-Promise.all([fetch('/depositos'), fetch('/proventos')])
-    .then(responses => Promise.all(responses.map(response => response.json())))
-    .then(([depositosData, proventosData]) => {
-        let depositosPorMes = agruparPorMes(depositosData);
-        let proventosPorMes = agruparPorMes(proventosData);
-
-        let labels = Object.keys({...depositosPorMes, ...proventosPorMes}); // Os meses dos depósitos e proventos
-        labels.sort(); // Ordena os meses na ordem crescente
-
-        let depositosValores = labels.map(mes => depositosPorMes[mes] || 0); // As somas dos valores dos depósitos
-        let proventosValores = labels.map(mes => proventosPorMes[mes] || 0); // As somas dos valores dos proventos
-
-        let ctx = document.getElementById('meuGrafico').getContext('2d');
-        let chart = new Chart(ctx, {
-            type: 'line', // Tipo de gráfico que você deseja criar
-            data: {
-                labels: labels, // Os meses dos depósitos e proventos
-                datasets: [{
-                    label: 'Depósitos',
-                    data: depositosValores, // As somas dos valores dos depósitos
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Cor de fundo
-                    borderColor: 'rgba(75, 192, 192, 1)', // Cor da borda
-                    borderWidth: 1 // Espessura da borda
-                }, {
-                    label: 'Proventos',
-                    data: proventosValores, // As somas dos valores dos proventos
-                    backgroundColor: 'rgba(153, 102, 255, 0.2)', // Cor de fundo
-                    borderColor: 'rgba(153, 102, 255, 1)', // Cor da borda
-                    borderWidth: 1 // Espessura da borda
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            callback: function(value) {if (value % 1 === 0) {return value;}}
-                        }
-                    }]
-                }
-            }
-        });
-    });
-
-function agruparPorMes(data) {
-    return data.reduce((acc, item) => {
-        let mes = item.dt_recebimeto.slice(0, 7); // Pega o ano e o mês do item
+    let depositosPorMes = dataDep.reduce((acc, deposito) => {
+        let mes = deposito.dt_deposito.slice(0, 7);
         if (!acc[mes]) {
-            acc[mes] = 0; // Inicializa a soma para este mês
+            acc[mes] = 0;
         }
-        acc[mes] += item.valorDep; // Soma o valor do item
+        acc[mes] += deposito.valorDep;
         return acc;
     }, {});
-}*/
+
+    let proventosPorMes = dataProv.reduce((acc, provento) => {
+        let mes = provento.dt_recebimeto.slice(0, 7);
+        if (!acc[mes]) {
+            acc[mes] = 0;
+        }
+        acc[mes] += provento.valorDep;
+        return acc;
+    }, {});
+
+    // Incluindo o mês de dezembro de 2022 nos proventos
+    if (!proventosPorMes['2022-12']) {
+        proventosPorMes['2022-12'] = 0;
+    }
+
+    let labelsDep = Object.keys(depositosPorMes);
+    let valoresDep = Object.values(depositosPorMes);
+
+    let labelsProv = Object.keys(proventosPorMes);
+    let valoresProv = Object.values(proventosPorMes);
+
+    let depositos = labelsDep.map((label, i) => ({mes: label, valor: valoresDep[i]}));
+    let proventos = labelsProv.map((label, i) => ({mes: label, valor: valoresProv[i]}));
+
+    depositos.sort((a, b) => a.mes.localeCompare(b.mes));
+    proventos.sort((a, b) => a.mes.localeCompare(b.mes));
+
+    labelsDep = depositos.map(deposito => deposito.mes);
+    valoresDep = depositos.map(deposito => deposito.valor);
+
+    labelsProv = proventos.map(provento => provento.mes);
+    valoresProv = proventos.map(provento => provento.valor);
+
+    // Adicionando o próximo mês vazio
+    let ultimoMesDep = labelsDep[labelsDep.length - 1];
+    let ultimoMesProv = labelsProv[labelsProv.length - 1];
+
+    let proximoMesDep = new Date(ultimoMesDep + '-01');
+    proximoMesDep.setMonth(proximoMesDep.getMonth() + 1);
+    proximoMesDep = proximoMesDep.toISOString().slice(0, 7);
+
+    let proximoMesProv = new Date(ultimoMesProv + '-01');
+    proximoMesProv.setMonth(proximoMesProv.getMonth() + 1);
+    proximoMesProv = proximoMesProv.toISOString().slice(0, 7);
+
+    labelsDep.push(proximoMesDep);
+    valoresDep.push(0);
+
+    labelsProv.push(proximoMesProv);
+    valoresProv.push(0);
+
+    let ctx = document.getElementById('meuGrafico').getContext('2d');
+    
+   // Alterando as cores das linhas
+   new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labelsDep,
+            datasets: [{
+                label: 'Depósitos',
+                data: valoresDep,
+                backgroundColor: '#ff0000', // Cor de fundo preta
+                borderColor: '#ff0000', // Cor da linha preta
+                borderWidth: 1
+            },
+            {
+                label: 'Proventos',
+                data: valoresProv,
+                backgroundColor: '#38a138', // Cor de fundo verde
+                borderColor: '#228b22', // Cor da linha verde
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+   });
+});
+
+
+
 
 
 

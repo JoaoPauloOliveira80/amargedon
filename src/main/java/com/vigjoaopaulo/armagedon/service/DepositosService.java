@@ -111,7 +111,7 @@ public class DepositosService {
 					System.out.println();
 					msgProv = "Nao há dados novos proventos";
 				}
-			}
+			}  
 			System.out.println();
 			System.out.println(msgDep);
 			
@@ -132,5 +132,12 @@ public class DepositosService {
 	public List<Proventos> getProventos() {
 		return proventosRepository.findAll();
 	}
+
+	public Double getTotalDepositos() {
+	    Double total = depositosRepository.sumValorDep();
+	    System.out.println("Total de depósitos: " + total);  // linha de depuração
+	    return total;
+	}
+
 
 }

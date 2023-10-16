@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.vigjoaopaulo.armagedon.model.Depositos;
 import com.vigjoaopaulo.armagedon.model.Proventos;
 import com.vigjoaopaulo.armagedon.service.DepositosService;
+import org.springframework.ui.Model;
+
 
 @RestController
 public class ControlRoot {
@@ -28,5 +30,14 @@ public class ControlRoot {
     public List<Proventos> getProventos() {
         return depositosService.getProventos();
     }
+    
+    
+    @GetMapping("/totalDepositos")
+    public String showTotalDepositos(Model model) {
+        Double total = depositosService.getTotalDepositos();
+        model.addAttribute("totalDepositos", total);
+        return "totalDepositos";
+    }
+
 } 
  
