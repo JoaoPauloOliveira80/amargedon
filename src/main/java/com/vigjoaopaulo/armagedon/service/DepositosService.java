@@ -3,9 +3,11 @@ package com.vigjoaopaulo.armagedon.service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +17,6 @@ import com.vigjoaopaulo.armagedon.model.Depositos;
 import com.vigjoaopaulo.armagedon.model.Proventos;
 import com.vigjoaopaulo.armagedon.repository.DepositosRepository;
 import com.vigjoaopaulo.armagedon.repository.ProventosRepository;
-
-import java.util.regex.Matcher;
 
 @Service
 public class DepositosService {
@@ -29,7 +29,7 @@ public class DepositosService {
 	static ArrayList<Depositos> depositos = new ArrayList<>();
 	static ArrayList<Proventos> proventos = new ArrayList<>();
 
-	static String path = "C:\\Users\\vigjo\\Downloads/Extrato_2023-10-15.csv";
+	static String path = "C:\\Users\\vigjo\\Downloads/Extrato_2023-10-19.csv";
 
 	public void processFile() {
 		FileReader arquivo;
@@ -84,8 +84,15 @@ public class DepositosService {
 
 						proventos.add(provento);
 					}
-
+ 
 				}
+
+//				ControlRoot root = new ControlRoot();
+//				Model model = new ConcurrentModel(); // ou outra implementação apropriada
+//				root.showTotalDepositos(model);
+				
+				getTotalDepositos();
+
 
 			}
 
@@ -135,7 +142,11 @@ public class DepositosService {
 
 	public Double getTotalDepositos() {
 	    Double total = depositosRepository.sumValorDep();
-	    System.out.println("Total de depósitos: " + total);  // linha de depuração
+	    DecimalFormat df = new DecimalFormat("#.##");
+	    String totalStr = df.format(total);
+	    totalStr = totalStr.replace(',', '.'); // substitui a vírgula por um ponto
+	    total = Double.valueOf(totalStr);
+//	    System.out.println(total);  // linha de depuração
 	    return total;
 	}
 

@@ -31,13 +31,12 @@ public class ControlRoot {
         return depositosService.getProventos();
     }
     
-    
     @GetMapping("/totalDepositos")
-    public String showTotalDepositos(Model model) {
-        Double total = depositosService.getTotalDepositos();
-        model.addAttribute("totalDepositos", total);
-        return "totalDepositos";
+    @ResponseBody
+    public Double getTotalDepositos() {
+        return depositosService.getTotalDepositos();
     }
+
 
 } 
  

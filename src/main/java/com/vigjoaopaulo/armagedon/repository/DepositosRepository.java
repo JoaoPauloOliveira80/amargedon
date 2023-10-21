@@ -9,6 +9,7 @@ import com.vigjoaopaulo.armagedon.model.Depositos;
 @Repository
 public interface DepositosRepository extends JpaRepository<Depositos, Long> {
 	
-	@Query("SELECT SUM(d.valorDep) FROM Depositos d")
-    Double sumValorDep();
+	@Query("SELECT COALESCE(SUM(d.valorDep), 0) FROM Depositos d")
+	Double sumValorDep();
+
 }
